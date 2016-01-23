@@ -63,13 +63,14 @@ int main(int argc, char *argv[])
     #include "setInitialDeltaT.H"
 
 
-    Info << " \n\nAtmospheric solver  :  0.1.0" << endl; 
+    Info << " \n\nAtmospheric solver  :  0.2.0" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);
 	Info << "\t\t " << (nonlinear ? "Nonlinear " : "Linear ") << " solver. " << endl;
 	
-	
+	const bool forcepreference = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("forcepreference", false);
+	Info << "\t\t " << (nonlinear ? "Nonlinear " : "Linear ") << " solver. " << endl;
 	
     pimpleControl pimple(mesh);
 
