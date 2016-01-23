@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 	Info << "\t\t " << (nonlinear ? "Nonlinear " : "Linear ") << " solver. " << endl;
 	
 	const bool forcepreference = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("forcepreference", false);
-	Info << "\t\t " << (nonlinear ? "Nonlinear " : "Linear ") << " solver. " << endl;
+	Info << "\t\t " << (forcepreference ? "force p reference " : "") << endl;
 	
     pimpleControl pimple(mesh);
 
