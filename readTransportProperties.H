@@ -9,5 +9,8 @@
     // Turbulent Prandtl number
     dimensionedScalar Prt(laminarTransport.lookup("Prt"));
 
-
+	// Read the fcoriolis. if not present set to 0. 
+	dimensionedVector zerocoriolis("zerovec1",dimensionSet(0, 0, -1, 0, 0, 0, 0),vector(0,0,0));
+	dimensionedVector fCoriolis(laminarTransport.lookupOrDefault("fCoriolis",zerocoriolis));
+	
 	

@@ -22,7 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-	atmosFOAMVuossinesq
+	atmosFOAMBuossinesq
+	 
+	0.4.0 
+	-----
+		* Reading the coriolis force, and the geostrphic wind. if not found use 0. 
+	 
+	0.3.0 
+	------ 
+		* Include the geostrophic pressures. 
 
 Description
 	A basic buossinesq solver for the atmosphere. 
@@ -63,7 +71,7 @@ int main(int argc, char *argv[])
     #include "setInitialDeltaT.H"
 
 
-    Info << " \n\nAtmospheric solver  :  0.2.0" << endl; 
+    Info << " \n\nAtmospheric solver  :  0.4.0" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);
@@ -71,6 +79,8 @@ int main(int argc, char *argv[])
 	
 	const bool forcepreference = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("forcepreference", false);
 	Info << "\t\t " << (forcepreference ? "force p reference " : "") << endl;
+	
+	Info << "\t\t " << "Using coriolis vector " << fCoriolis << endl; 
 	
     pimpleControl pimple(mesh);
 
