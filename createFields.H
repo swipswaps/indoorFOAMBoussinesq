@@ -1,6 +1,6 @@
     Info<< "Reading thermophysical properties\n" << endl;
 
-    Info<< "Reading field T mean\n" << endl;
+    Info<< "Reading field background T (potential temperature) " << endl;
     volScalarField Tmean
     (
         IOobject
@@ -14,7 +14,7 @@
         mesh
     );
 
-    Info<< "Reading field T (actually T perturbation)\n" << endl;
+    Info<< "Reading field T (potential temperature)" << endl;
     volScalarField T
     (
         IOobject
@@ -28,23 +28,7 @@
         mesh
     );
 
-
-    /*volScalarField CentrifugalFactor
-    (
-        IOobject        (
-            "CentrifugalFactor",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );*/
-
-
-    dimensionedScalar TRef = sum(Tmean*mesh.V())/sum(mesh.V());
-
-    Info<< "Reading field p_rgh\n" << endl;
+    Info<< "Reading field p_rgh" << endl;
     volScalarField p_rgh
     (
         IOobject
@@ -58,8 +42,7 @@
         mesh
     );
 
-
-    Info<< "Reading field U (actuallty U perturbation)\n" << endl;
+    Info<< "Reading field U" << endl;
     volVectorField U
     (
         IOobject
@@ -72,9 +55,21 @@
         ),
         mesh
     );
+    
+    Info<< "Reading field UGeostrophic (if present, else set to 0)" << endl;
+    volVectorField UGeostrophic(IOobject("UGeostrophic",
+											runTime.timeName(),
+											mesh,
+											IOobject::READ_IF_PRESENT,
+											IOobject::AUTO_WRITE), 
+								mesh,
+								dimensionedVector("geosvec", U.dimensions(), vector::zero) 						   
+								);
+    
+    
 
+    Info<< "Creating field Ttotal = T (perturbation) + Tmean" << endl;
 
-    Info<< "Creating field Ttotal = T (perturbation) + Tmean\n" << endl;
     volScalarField Ttotal
     (
         IOobject
@@ -89,40 +84,14 @@
     );
     Ttotal.write(); 
 
-/*
-    volVectorField Uwhitenoise
-    (
-    	IOobject
-        (
-            "Uwhitenoise",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-	mesh
-     );
-
-    volScalarField Twhitenoise
-    (
-    	IOobject
-        (
-            "Twhitenoise",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-	mesh
-     );
-*/
-
-
     #include "createPhi.H"
 
     #include "readTransportProperties.H"
 
     Info << "Calculating the mean rho" << nl; 
+
+    #include "createPhi.H"
+    #include "readTransportProperties.H"
 
     Info<< "Creating turbulence model\n" << endl;
     autoPtr<incompressible::turbulenceModel> turbulence
@@ -193,32 +162,3 @@
         );
     }
 
-/*
-    volTensorField AnisotropicDiffusion
-    (
-	IOobject
-    	(
-	"AnisotropicDiffusion",
-	runTime.timeName(),
-	mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-	),
-	mesh
-    );
-
-
-	volVectorField NudgingTerm
-    (
-        IOobject
-        (
-            "NudgingTerm",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedVector("Zero",dimensionSet(0,1,-2,0,0,0,0),vector::zero)        
-    );
-*/
