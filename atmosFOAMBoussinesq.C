@@ -26,6 +26,18 @@ Application
 
 Description
  
+=======
+	 
+	0.4.0 
+	-----
+		* Reading the coriolis force, and the geostrphic wind. if not found use 0. 
+	 
+	0.3.0 
+	------ 
+		* Include the geostrophic pressures. 
+
+Description
+	A basic buossinesq solver for the atmosphere. 
 
 \*---------------------------------------------------------------------------*/
 
@@ -63,13 +75,22 @@ int main(int argc, char *argv[])
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
-
-    Info << " \nBoussinesq Atmospheric Solver  :  0.0.1" << endl; 
+    Info << " \n\nAtmospheric solver  :  0.4.0" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);
-
+	Info << "\t\t " << (nonlinear ? "Nonlinear " : "Linear ") << " solver. " << endl;
+	
+	const bool forcepreference = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("forcepreference", false);
+	Info << "\t\t " << (forcepreference ? "force p reference " : "") << endl;
+	
+	Info << "\t\t " << "Using coriolis vector " << fCoriolis << endl; 
+	
     pimpleControl pimple(mesh);
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    Info<< "\nStarting time loop\n" << endl;
+	
 
     while (runTime.loop())
     {
@@ -98,9 +119,9 @@ int main(int argc, char *argv[])
             }
         }
 
-		runTime.write();
+	runTime.write();
 
-		Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
+	Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 			<< "  ClockTime = " << runTime.elapsedClockTime() << " s"
 			<< nl << endl;
             
@@ -111,32 +132,3 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-// ************************************************************************* //
-//		outname << "rand" << Pstream::myProcNo();
-//		std::ofstream out;
-		//out.open(outname.str().c_str()); 
-		
-		//for (long jj=0;jj<10000;jj++){ 
-//			out << perturbation.GaussNormal() << std::endl;
-		//}
-
-		
-		// Get the random field. 
-		//if (Pstream::myProcNo() == 0)
-		//{
-			//List<scalar> allV(n);
-			//for(label i=1; i<n; i++)
-			//{
-				// create the input stream from processor i
-				//IPstream vStream(Pstream::blocking, i);
-				//vStream >> allV[i];
-			//}
-			//Info << allV << endl;
-			//exit(1);
-		//} else { 
-			
-						
-			//OPstream vectorStream(Pstream::blocking, 0);
-			//vectorStream << perturbation.GaussNormal();
-			
-//		}
