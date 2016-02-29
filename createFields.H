@@ -71,11 +71,6 @@
     #include "createPhi.H"
     #include "readTransportProperties.H"
 
-    Info << "Calculating the mean rho" << nl; 
-
-    #include "createPhi.H"
-    #include "readTransportProperties.H"
-
     Info<< "Creating turbulence model\n" << endl;
     autoPtr<incompressible::turbulenceModel> turbulence
     (
