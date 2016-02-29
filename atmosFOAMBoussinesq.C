@@ -34,8 +34,9 @@ Description
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
-#include "RASModel.H"
 #include "radiationModel.H"
+#include "turbulentTransportModel.H"
+
 #include "fvIOoptionList.H"
 #include "pimpleControl.H"
 #include "interpolation.H"
