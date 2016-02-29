@@ -8,7 +8,7 @@
 		(nonlinear ? fvm::ddt(T) + fvm::div(phi, T) : fvm::ddt(T))
 	      + fvc::div(phi,Tmean)
 	      - fvm::laplacian(alphaEff, T)
-//	      - fvm::laplacian(AnisotropicDiffusion,T)
+	      - fvm::laplacian(D,T)
 	     ==
 //		radiation->ST(rhoCpRef, T)
 	        fvOptions(T)

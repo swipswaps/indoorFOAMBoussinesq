@@ -4,7 +4,7 @@
     fvVectorMatrix UEqn(
 		(nonlinear ? fvm::ddt(U) + fvm::div(phi, U) : fvm::ddt(U))
 	      + turbulence->divDevReff(U)
-//	      - fvm::laplacian(AnisotropicDiffusion,U)
+	      - fvm::laplacian(D,U)
 	     ==
 		fvOptions(U)
     );
