@@ -28,22 +28,6 @@
         mesh
     );
 
-
-    /*volScalarField CentrifugalFactor
-    (
-        IOobject        (
-            "CentrifugalFactor",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );*/
-
-
-    dimensionedScalar TRef = sum(Tmean*mesh.V())/sum(mesh.V());
-
     Info<< "Reading field p_rgh\n" << endl;
     volScalarField p_rgh
     (
@@ -73,56 +57,8 @@
         mesh
     );
 
-
-    Info<< "Creating field Ttotal = T (perturbation) + Tmean\n" << endl;
-    volScalarField Ttotal
-    (
-        IOobject
-        (
-            "Ttotal",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        T+Tmean
-    );
-    Ttotal.write(); 
-
-/*
-    volVectorField Uwhitenoise
-    (
-    	IOobject
-        (
-            "Uwhitenoise",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-	mesh
-     );
-
-    volScalarField Twhitenoise
-    (
-    	IOobject
-        (
-            "Twhitenoise",
-            runTime.timeName(),
-            mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-	mesh
-     );
-*/
-
-
     #include "createPhi.H"
-
     #include "readTransportProperties.H"
-
-    Info << "Calculating the mean rho" << nl; 
 
     Info<< "Creating turbulence model\n" << endl;
     autoPtr<incompressible::turbulenceModel> turbulence
@@ -193,32 +129,3 @@
         );
     }
 
-/*
-    volTensorField AnisotropicDiffusion
-    (
-	IOobject
-    	(
-	"AnisotropicDiffusion",
-	runTime.timeName(),
-	mesh,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-	),
-	mesh
-    );
-
-
-	volVectorField NudgingTerm
-    (
-        IOobject
-        (
-            "NudgingTerm",
-            runTime.timeName(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh,
-        dimensionedVector("Zero",dimensionSet(0,1,-2,0,0,0,0),vector::zero)        
-    );
-*/
