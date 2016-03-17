@@ -11,7 +11,7 @@
     (
         "phiHbyA",
         (fvc::interpolate(HbyA) & mesh.Sf())
-    //  + rAUf*fvc::ddtCorr(U, phi)
+        + rAUf*fvc::ddtCorr(U, phi)
       );
 
 
