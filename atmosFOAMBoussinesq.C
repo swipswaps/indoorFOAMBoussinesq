@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
-    Info << " \n\nAtmospheric solver  :  0.4.0" << endl; 
+    Info << " \n\nAtmospheric solver  :  0.4.1" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);
