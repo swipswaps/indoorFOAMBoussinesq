@@ -27,6 +27,9 @@ Application
 Description
  
 =======
+	0.4.1
+	-----
+		* Adding the p correction 
 	 
 	0.4.0 
 	-----
