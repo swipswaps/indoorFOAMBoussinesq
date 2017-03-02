@@ -12,15 +12,22 @@
         "phiHbyA",
         (fvc::interpolate(HbyA) & mesh.Sf())
         + rAUf*fvc::ddtCorr(U, phi)
-      );
+    );
+
+    surfaceScalarField g_gradbyA 
+    (
+	"g_gradbyA",
+	fvc::interpolate(rAU*g*rhok_tag) & mesh.Sf()
+    );
+
 
     // Update the fixedFluxPressure BCs to ensure flux consistency
+    // First line: (H&Sf/A-Sf&U))/(|Sf|*1/A) = (H-AU)&Sf\|Sf|. 
+    // Second line is the 
     setSnGrad<fixedFluxPressureFvPatchScalarField>
     (
         p_rgh.boundaryField(),
-        (
-            phiHbyA.boundaryField()
-        )/(mesh.magSf().boundaryField()*rAUf.boundaryField())
+        (phiHbyA.boundaryField() - (mesh.Sf().boundaryField() & U.boundaryField()) + g_gradbyA.boundaryField())/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 
     while (pimple.correctNonOrthogonal())
