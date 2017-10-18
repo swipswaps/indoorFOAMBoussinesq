@@ -141,7 +141,7 @@
     }
 
 
-
+/*
 volTensorField AnisotropicDiffusion
     (
 	IOobject
@@ -154,4 +154,4 @@ volTensorField AnisotropicDiffusion
 	),
 	mesh
     );
-
+*/
