@@ -97,7 +97,6 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
 	
-
     while (runTime.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -109,15 +108,14 @@ int main(int argc, char *argv[])
         // --- Pressure-velocity PIMPLE corrector loop
         while (pimple.loop())
         {
-		
            #include "UEqn.H"
-	       #include "TEqn.H"
+           #include "TEqn.H"
 	    
 	        // --- Pressure corrector loop
             while (pimple.correct())
             {
                 #include "pEqn.H"
-            }
+	    }
 
             if (pimple.turbCorr())
             {
