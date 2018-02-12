@@ -1,0 +1,268 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{textcomp}
+
+%opening
+\title{new Mean flow solver}
+\author{Yehuda arav}
+
+\linespread{1.3}
+
+\newcommand{\fd}[2]{\frac{d#1}{d#2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\Ddt}[1]{\pd{#1}{t} + u\pd{#1}{x} + v\pd{#1}{y} + w\pd{#1}{z}}
+\newcommand{\Ddtf}[4]{\pd{#1}{t} + #2\pd{#1}{x} + #3\pd{#1}{y} + #4\pd{#1}{z}}
+\newcommand{\fluxf}[4]{\pd{#1}{t} + \pd{#2#1}{x} + \pd{#3#1}{y} + \pd{#4#1}{z}}
+\newcommand{\CDf}[4]{\pd{#2#1}{x} + \pd{#3#1}{y} + \pd{#4#1}{z}}
+\newcommand{\Cf}[4]{#2\pd{#1}{x} + #3\pd{#1}{y} + #4\pd{#1}{z}}
+\newcommand{\DT}[1]{\frac{D #1}{Dt}}
+\newcommand{\fvar}[1]{#1_0+#1'}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+The OF sovler solves the total (mean and perturbation) flow. However, for our needs, we lack the mechanisms 
+that maintain the katabatic flow. 
+
+Therefore, we will now describe a new solver in which the katabatic flow does not change. 
+
+The solver is buossiensq, non-hydrostatic and nonlinear. 
+
+\section{Governing equations}
+
+The buossiensq equations for 3D flow are: 
+
+\begin{equation}
+  \begin{align}
+    \DT{u} &= -\pd{\,}{x}\frac{p}{\rho_0} \\
+    \DT{v} &= -\pd{\,}{y}\frac{p}{\rho_0} \\
+    \DT{w} &= -\pd{\,}{z}\frac{p}{\rho_0} + g\frac{\theta^*}{\rho_0}\\
+    \DT{\theta} &= 0\\
+    \pd{u}{x}  + \pd{v}{y} + \pd{w}{z} &= 0    
+  \end{align}
+\end{equation}
+Where $\DT{x}=\Ddt{x}$, $\rho_0$ $[kg\cdot m^{-3}]$ is the characteristic density, $u,w$ $[m\cdot sec^{-1}]$ is the horizontal and vertical velocities, 
+$p$ $[kg\cdot m^{-1}\cdot sec^{-2}]$ is the total pressure, $\rho$ $[kg\cdot m^{-3}]$ is the density, $g$ [$m\cdot sec^{-2}$] is the gravitational acceleration, 
+and $\theta$ is the potential temperature and $\theta*$ is the perturbation in the potential temperature. 
+
+Writing the variables as mean and perturbation:
+ \hspace{-5cm}
+\begin{equation}
+ \begin{align}
+    u &= u_0(z) + u'(x,y,z,t)\\
+    v &= v_0(z) + u'(x,y,z,t)\\
+    w &= w_0(z) + w'(x,y,z,t)\\
+    p &= p_0(z) + p'(x,y,z,t)\\
+    \theta^*&=\theta_0(z) + \theta'(x,y,z,t)\\
+ \end{align}
+\end{equation}
+Where $u_0,v_0,w_0,p_0$ and $\theta_0$ are the katabatic variables and the tags are the distrubances. 
+
+Writing the kinetic equations we get: 
+\begin{equation}
+  \begin{align}
+    \Ddtf{(\fvar{u})}{(\fvar{u})}{(\fvar{v})}{(\fvar{w})} &= -\pd{\,}{x}\frac{\fvar{p}}{\rho_0} \\
+    \Ddtf{(\fvar{v})}{(\fvar{u})}{(\fvar{v})}{(\fvar{w})} &= -\pd{\,}{y}\frac{\fvar{p}}{\rho_0} \\
+    \Ddtf{(\fvar{w})}{(\fvar{u})}{(\fvar{v})}{(\fvar{w})} &= -\pd{\,}{z}\frac{\fvar{p}}{\rho_0} + g\frac{\theta_0+\theta'}{\theta_m}\\
+    \Ddtf{(\fvar{\theta})}{(\fvar{u})}{(\fvar{v})}{(\fvar{w})} &= 0\\
+    \pd{(\fvar{u})}{x}  + \pd{(\fvar{v})}{y} + \pd{(\fvar{w})}{z} &= 0    
+  \end{align}
+\end{equation}
+where $\theta_m$ is the mean potential temperature that doea not change with time. 
+
+The katabatic wind is a solution to the following equations, 
+\begin{equation}
+ \begin{align}
+    \Ddtf{u_0}{u_0}{v_0}{w_0} &= -\pd{\,}{x}\frac{p_0}{\rho_0} \\
+    \Ddtf{v_0}{u_0}{v_0}{w_0} &= -\pd{\,}{y}\frac{p_0}{\rho_0} \\
+    \Ddtf{w_0}{u_0}{v_0}{w_0} &= -\pd{\,}{z}\frac{p_0}{\rho_0} + g\frac{\theta^*}{\theta_m}\\ 
+    \Ddtf{\theta_0}{u_0}{v_0}{w_0} &= 0\\
+    \pd{u_0}{x}  + \pd{v_0}{y} + \pd{w_0}{z} &= 0    
+  \end{align}
+\end{equation}
+However, we will not solve them in this solver. 
+
+The equations of the perturbation are: 
+\begin{equation}
+  \begin{align}
+    \Ddtf{u'}{u'}{v'}{w'} + u_0\pd{u'}{x} + v_0\pd{u'}{y} + w_0\pd{u'}{z} + u'\pd{u_0}{x}  + v'\pd{u_0}{y}  + w'\pd{u_0}{z} &= -\pd{\,}{x}\frac{p'}{\rho_0} \\
+    \Ddtf{v'}{u'}{v'}{w'} + u_0\pd{v'}{x} + v_0\pd{v'}{y} + w_0\pd{v'}{z} + u'\pd{v_0}{x}  + v'\pd{v_0}{y}  + w'\pd{v_0}{z} &= -\pd{\,}{y}\frac{p'}{\rho_0} \\
+    \Ddtf{w'}{u'}{v'}{w'} + u_0\pd{w'}{x} + v_0\pd{w'}{y} + w_0\pd{w'}{z} + u'\pd{w_0}{x}  + v'\pd{w_0}{y}  + w'\pd{w_0}{z} &= -\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{\theta'}{\rho_0}\\
+    \Ddtf{\theta'}{u'}{v'}{w'} + u_0\pd{\theta'}{x} + u'\pd{\theta_0}{x} + v_0\pd{\theta'}{y} + v'\pd{\theta_0}{y} + w_0\pd{\theta'}{z} + w'\pd{\theta_0}{z} &= 0\\
+    \pd{u'}{x}  + \pd{v'}{y} + \pd{w'}{z} &= 0    
+  \end{align}
+  \label{eqn:openforms}
+\end{equation}
+
+Using the continuity equations we write the equations in flux form, 
+\begin{equation}
+  \begin{align}
+    \fluxf{u'}{u'}{v'}{w'} + \CDf{u'}{u_0}{v_0}{w_0} + \CDf{u_0}{u'}{v'}{w'} &= -\pd{\,}{x}\frac{p'}{\rho_0} \\
+    \fluxf{v'}{u'}{v'}{w'} + \CDf{v'}{u_0}{v_0}{w_0} + \CDf{v_0}{u'}{v'}{w'} &= -\pd{\,}{y}\frac{p'}{\rho_0} \\
+    \fluxf{w'}{u'}{v'}{w'} + \CDf{w'}{u_0}{v_0}{w_0} + \CDf{w_0}{u'}{v'}{w'} &= -\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{\theta'}{\rho_0}\\
+    \fluxf{\theta'}{u'}{v'}{w'} + \CDf{\theta'}{u_0}{v_0}{w_0} + \CDf{\theta_0}{u'}{v'}{w'} &= 0\\
+    \pd{u'}{x}  + \pd{v'}{y} + \pd{w'}{z} &= 0    
+  \end{align}
+\end{equation}
+
+Writing in vector form, 
+\begin{equation}
+  \begin{align}
+    \pd{u'}{t} + \nabla\cdot (\vec{U}'\cdot u') + \nabla\cdot (\vec{U_0}\cdot u') + \nabla\cdot (\vec{U}\cdot u_0) &=  -\pd{\,}{x}\frac{p'}{\rho_m} \\
+    \pd{v'}{t} + \nabla\cdot (\vec{U}'\cdot v') + \nabla\cdot (\vec{U_0}\cdot v') + \nabla\cdot (\vec{U}\cdot v_0) &=  -\pd{\,}{y}\frac{p'}{\rho_m} \\
+    \pd{w'}{t} + \nabla\cdot (\vec{U}'\cdot w') + \nabla\cdot (\vec{U_0}\cdot w') + \nabla\cdot (\vec{U}\cdot w_0) &=  -\pd{\,}{z}\frac{p'}{\rho_m} + g\frac{\theta'}{\rho_m}\\
+    \pd{\theta'}{t} + \nabla\cdot (\vec{U}'\cdot \theta')+ \nabla\cdot (\vec{U_0}\cdot \theta') + \nabla\cdot (\vec{U}'\cdot \theta_0) &= 0\\
+    \pd{u'}{x}  + \pd{v'}{y} + \pd{w'}{z} &= 0    
+  \end{align}
+\end{equation}
+where $\vec{U}'=(u',v',w')$ and $\vec{U_0}=(u_0,v_0,w_0)$. 
+
+\section{PISO}
+
+The piso algorithm comprises a predictor and corrector steps. 
+
+First, the momentum is predicted by solving the momentum:
+\begin{equation}
+\vec{C}(\vec{U}',\vec{U_0}) \cdot \vec{U}'^{*} = -\nabla\frac{p'}{\rho_0} + g\frac{\theta'}{\rho_0}\hat{z}
+\end{equation}
+Where $C(\vec{U}')$ is the discretization of the operator
+\begin{equation}
+   \pd{}{t} + \nabla\cdot (\vec{U}'\cdot ) + \nabla\cdot (\vec{U_0}\cdot )
+\end{equation}
+$\vec{C}$ is the matrix with the discretization of the operator in each row
+and $\vec{U}'^{*}$ is the predicted velocity.  
+
+Then, the temperature is calculated 
+\begin{equation}
+  C(\vec{U}',\vec{U_0})\theta^* + \nabla\cdot (\vec{U}'\cdot \theta_0) = 0 
+\end{equation}
+
+The prediction for the $\theta'$
+
+Finally, $\vec{U}'$ is corrected to be divergence free. 
+We denote $C = A + H'$, where $A$ is the diagonal and $H'$ are the off diagonals, 
+and neglecting the nonlinear terms for the corrected $u^{**}$ and $w^{**}$, 
+\begin{equation}
+  A\cdot \vec{U}'^{**} + H'\cdot \vec{U}'^{*} = -\nabla\frac{p'^*}{\rho_0} + g\frac{\theta'^*}{\rho_0}\hat{z} + \vec{r}
+\end{equation}
+Where $r$ are source terms and older time terms. 
+
+To solve this equation we have to estimate $p'^*$. Using the fact that $\nabla\cdot \vec{U}'^{**} = 0$
+we obtain the equation, 
+\begin{equation}
+  \nabla\cdot H'\cdot \vec{U}'^{*} = -\nabla\cdot A^{-1}\nabla\frac{p'^*}{\rho_0} + \nabla \cdot A^{-1} (g\frac{\theta'^*}{\rho_0}\hat{z} + \vec{r})
+\end{equation}
+
+After solving for $p'^*$ we calculate $\vec{U}'^{**}$. These steps are repeated if necessary. 
+
+\section{Energy Equation}
+
+
+First we note that for an arbirtrary variable $q$: 
+\begin{equation}
+  u\fd{q^2}{x} = 2qu\fd{q}{x} 
+  \label{eqn:firstiden}
+\end{equation}
+
+And therefore, 
+
+\begin{equation}
+\begin{split}
+q\fd{q}{t} & = q\left[\Ddt{q}\right] = \frac{1}{2}\pd{q^2}{t} + qu\pd{q}{x}+ qv\pd{q}{y}+ qw\pd{q}{z} \\
+           & = \frac{1}{2}\pd{q^2}{t} + \frac{1}{2}\pd{q^2}{t}\left[2qu\pd{q}{x}+ 2qv\pd{q}{y}+ 2qw\pd{q}{z} \right] \\
+           & = \frac{1}{2}\left[\Ddt{q^2}\right] = \\
+           & = \fluxf{(q^2)}{u}{v}{w}
+\end{split}
+\label{eqn:secondiden}
+\end{equation}
+The last step is because of continuity. 
+
+Now, we write equations \ref{eqn:openforms}: 
+\begin{equation}
+  \begin{align}
+    \fd{u'}{t} + u_0\pd{u'}{x} + v_0\pd{u'}{y} + w_0\pd{u'}{z} + u'\pd{u_0}{x}  + v'\pd{u_0}{y}  + w'\pd{u_0}{z} &= -\pd{\,}{x}\frac{p'}{\rho_0} \\
+    \fd{v'}{t} + u_0\pd{v'}{x} + v_0\pd{v'}{y} + w_0\pd{v'}{z} + u'\pd{v_0}{x}  + v'\pd{v_0}{y}  + w'\pd{v_0}{z} &= -\pd{\,}{y}\frac{p'}{\rho_0} \\
+    \fd{w'}{t} + u_0\pd{w'}{x} + v_0\pd{w'}{y} + w_0\pd{w'}{z} + u'\pd{w_0}{x}  + v'\pd{w_0}{y}  + w'\pd{w_0}{z} &= -\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{\theta'}{\rho_0}\\
+    \fd{\theta'}{t} + u_0\pd{\theta'}{x} + u'\pd{\theta_0}{x} + v_0\pd{\theta'}{y} + v'\pd{\theta_0}{y} + w_0\pd{\theta'}{z} + w'\pd{\theta_0}{z} &= 0\\
+    \pd{u'}{x}  + \pd{v'}{y} + \pd{w'}{z} &= 0    
+  \end{align}
+  \label{eqn:basicen}
+\end{equation}
+where $\fd{\,}{t} = \Ddtf{\,}{u'}{v'}{w'}$
+
+\subsection{Kinetic energy}
+
+The kinetic energy is obtained by multiplying the first three equations \ref{eqn:basicen} by $u'$,$v'$ and $w'$ (respectively).
+
+Therefore, 
+\begin{equation}
+  \begin{align}
+    u'\fd{u'}{t} + u'u_0\pd{u'}{x} + u'v_0\pd{u'}{y} + u'w_0\pd{u'}{z} + u'u'\pd{u_0}{x}  + u'v'\pd{u_0}{y}  + u'w'\pd{u_0}{z} &= -u'\pd{\,}{x}\frac{p'}{\rho_0} \\
+    v'\fd{v'}{t} + v'u_0\pd{v'}{x} + v'v_0\pd{v'}{y} + v'w_0\pd{v'}{z} + v'u'\pd{v_0}{x}  + v'v'\pd{v_0}{y}  + v'w'\pd{v_0}{z} &= -v'\pd{\,}{y}\frac{p'}{\rho_0} \\
+    w'\fd{w'}{t} + w'u_0\pd{w'}{x} + w'v_0\pd{w'}{y} + w'w_0\pd{w'}{z} + w'u'\pd{w_0}{x}  + w'v'\pd{w_0}{y}  + w'w'\pd{w_0}{z} &= -w'\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{w'\theta'}{\rho_0}\\
+  \end{align}
+  \label{eqn:kinet1}
+\end{equation}
+
+using continuity 
+\begin{equation}
+  \begin{align}
+    \frac{1}{2}\left[\fluxf{u'^2}{u'}{v'}{w'} + \pd{u_0 u'^2}{x} + \pd{v_0 u'^2}{y} + \pd{w_0 u'^2}{z}\right]& + u'u'\pd{u_0}{x} \\  +& u'v'\pd{u_0}{y}  + u'w'\pd{u_0}{z} =  -u'\pd{\,}{x}\frac{p'}{\rho_0} \\
+    \frac{1}{2}\left[\fluxf{v'^2}{u'}{v'}{w'} + \pd{u_0 v'^2}{x} + \pd{v_0 v'^2}{y} + \pd{w_0 v'^2}{z}\right]& + v'u'\pd{v_0}{x} \\  +& v'v'\pd{v_0}{y}  + v'w'\pd{v_0}{z} = -v'\pd{\,}{y}\frac{p'}{\rho_0} \\
+    \frac{1}{2}\left[\fluxf{w'^2}{u'}{v'}{w'} + \pd{u_0 w'^2}{x} + \pd{v_0 w'^2}{y} + \pd{w_0 w'^2}{z}\right]& + w'u'\pd{w_0}{x} \\  +& w'v'\pd{w_0}{y}  + w'w'\pd{w_0}{z} & \\ & = -w'\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{w'\theta'}{\rho_0}\\
+  \end{align}
+  \label{eqn:kinet2}
+\end{equation}
+
+
+% Using identities \ref{eqn:firstiden} and \ref{eqn:secondiden} in equation \ref{eqn:basicen} we obtain, 
+% \begin{equation}
+%   \begin{align}
+%     \frac{1}{2}\left[\fd{u'^2}{t} + \nabla\cdot (\vec{U_0}\cdot u'^2)\right] + u'\nabla\cdot (\vec{U}\cdot u_0) &= -u'\pd{\,}{x}\frac{p'}{\rho_0} \\
+%     \frac{1}{2}\left[\fd{v'^2}{t} + \nabla\cdot (\vec{U_0}\cdot v'^2)\right] + v'\nabla\cdot (\vec{U}\cdot u_0) &= -v'\pd{\,}{y}\frac{p'}{\rho_0} \\
+%     \frac{1}{2}\left[\fd{w'^2}{t}  + \nabla\cdot (\vec{U_0}\cdot w'^2)\right] + w'\nabla\cdot (\vec{U}\cdot u_0) &= -w'\pd{\,}{z}\frac{p'}{\rho_0} + g\frac{w'\theta'}{\rho_0}\\
+%   \end{align}
+%   \label{eqn:kinet3}
+% \end{equation}
+% 
+% Summing the three equations we obtain, 
+% \begin{equation}
+%   %\begin{split}
+%     \frac{1}{2}\left[\fd{E_K}{t} +  \nabla\cdot (\vec{U_0}\cdot E_K)\right] +  u'\nabla\cdot (\vec{U}\cdot u_0)+  v'\nabla\cdot (\vec{U}\cdot u_0) + w'\nabla\cdot (\vec{U}\cdot u_0) = \nabla\cdot (Up)+ g\frac{w'\theta'}{\rho_0}
+%   %\end{split}
+%   \label{eqn:kinet2}
+% \end{equation}
+\begin{equation}
+  \begin{split}
+    \frac{1}{2}&\left[\fluxf{E_K^2}{u'}{v'}{w'} + \pd{u_0 E_K^2}{x} + \pd{v_0 E_K^2}{y} + \pd{w_0 E_K^2}{z}\right] + \pd{\,}{x}\frac{u'p'}{\rho_0} + \pd{\,}{y}\frac{v'p'}{\rho_0} +\pd{\,}{z}\frac{w'p'}{\rho_0} \\  
+	=  & - u'u'\pd{u_0}{x} -   u'v'\pd{u_0}{y}  - u'w'\pd{u_0}{z} - v'u'\pd{v_0}{x} - v'v'\pd{v_0}{y}  \\ & - v'w'\pd{v_0}{z} w'u'\pd{w_0}{x} +  w'v'\pd{w_0}{y}  + w'w'\pd{w_0}{z} + g\frac{w'\theta'}{\rho_0}\\
+  \end{split}
+  \label{eqn:kinet2}
+\end{equation}
+Where $E_K = u'^2+v'^2+w'^2$ 
+
+
+\subsection{Potential energy}
+
+The potential energy equation is 
+
+\begin{equation}
+  \theta'\fd{\theta'}{t} + \theta'u_0\pd{\theta'}{x} + \theta'u'\pd{\theta_0}{x} + \theta'v_0\pd{\theta'}{y} + \theta'v'\pd{\theta_0}{y} + \theta'w_0\pd{\theta'}{z} + \theta'w'\pd{\theta_0}{z} = 0
+  \label{eqn:basicthe}
+\end{equation}
+where $\fd{\,}{t} = \Ddtf{\,}{u'}{v'}{w'}$
+
+
+
+
+
+
+
+
+
+
+\end{document}

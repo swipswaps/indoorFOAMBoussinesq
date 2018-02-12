@@ -1,0 +1,95 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{textcomp}
+
+\linespread{1.3}
+
+\newcommand{\fd}[2]{\frac{d#1}{d#2}}
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\Ddt}[1]{\pd{#1}{t} + u\pd{#1}{x}+ w\pd{#1}{z}}
+\newcommand{\DT}[1]{\frac{D #1}{Dt}}
+
+%opening
+\title{PISO}
+\author{Yehuda Arav}
+
+\begin{document}
+
+\maketitle
+
+\begin{equation}
+  \begin{align}
+    \DT{u} &= -\pd{\,}{x}\frac{p}{\rho_0} \\
+    \DT{w} &= -\pd{\,}{z}\frac{p}{\rho_0} - g\frac{\rho}{\rho_0}\\
+  \end{align}
+\end{equation}
+
+Discretizing the $\DT{\,}$ operator, we write
+\begin{equation}
+  \DT{\,} \approx C\cdot 
+\end{equation}
+Where $C$ is a matrix. 
+
+And so, 
+\begin{equation}
+  \begin{align}
+    C(u^0)\cdot u^* &= -\pd{\,}{x}\frac{p^0}{\rho_0} \\
+    C(u^0)\cdot w^* &= -\pd{\,}{z}\frac{p^0}{\rho_0} - g\frac{\rho^0}{\rho_0}\\
+  \end{align} 
+\end{equation}
+
+\section{First predictor}
+
+Solving the system of equations we obtain $u^*,w^*$. Likewise, 
+we solve the energy equation and obtain $\rho^*$. 
+
+\section{Corrector}
+
+The $u^*,w^*$ are not divergent free. Therefore, we now, 
+correctr them. 
+
+Writing $C = A + H'$, where $A$ is the diagonal and $H'$ are the off diagonals, 
+and neglecting the nonlinear terms for the corrected $u^{**}$ and $w^{**}$, 
+\begin{equation}
+  \begin{align}
+    A\cdot u^{**} + H'\cdot u^{*} &= -\pd{\,}{x}\frac{p^*}{\rho_0}  + r\\
+    A\cdot w^{**} + H'\cdot w^{*} &= -\pd{\,}{z}\frac{p^*}{\rho_0} - g\frac{\rho^*}{\rho_0} +r \\
+  \end{align} 
+\end{equation}
+Where $r$ are source terms and older time terms. 
+
+Thus, writing $H(\vec{u})\equiv A^{-1}(-H'(\vec{u})+r)$, 
+and the former equations in vector form:
+\begin{equation}
+      \vec{u}^{**} = H(\vec{u}) -  A^{-1}\nabla\frac{p^*}{\rho_0} - A^{-1}g\frac{\rho^*}{\rho_0}\hat{z}\\
+\end{equation}
+where $\hat{z}$ is the z axis vector. 
+
+In order to calculate $p^*$, we use the fact that $\vec{u}^{**}$ is supposed to be divergent free, 
+\begin{equation}
+ \nabla\cdot \vec{u}^{**} = 0
+\end{equation}
+
+Taking the divergence of the equation, 
+\begin{equation}
+      0= \nabla\cdot \vec{u}^{**} = \nabla\cdot H(\vec{u}) -  \nabla\cdot A^{-1}\nabla\frac{p^*}{\rho_0} - \nabla\cdot A^{-1}g\frac{\rho^*}{\rho_0}\hat{z}\\
+\end{equation}
+
+And so we can solve the equation for $p^*$ and use it to correct $\vec{u}^{**}$. 
+\begin{equation}
+      \nabla\cdot A^{-1}\nabla\frac{p^*}{\rho_0} = \nabla\cdot H(\vec{u})  - \nabla\cdot A^{-1}g\frac{\rho^*}{\rho_0}\hat{z}
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
