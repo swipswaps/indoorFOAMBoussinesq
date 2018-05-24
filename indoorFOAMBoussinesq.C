@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
-    Info << " \n\nIndoor solver  :  0.0.3" << endl; 
+    Info << " \n\nIndoor solver  :  0.1.0" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);

@@ -7,7 +7,7 @@
     (
         IOobject
         (
-            "Tmean",
+            "Tbackground",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
