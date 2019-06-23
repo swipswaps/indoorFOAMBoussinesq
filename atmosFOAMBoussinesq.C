@@ -27,7 +27,11 @@ Application
 Description
  
 =======
-	 
+	0.6.0
+	-----
+		* Changed to OF6.C	 
+
+
 	0.4.0 
 	-----
 		* Reading the coriolis force, and the geostrphic wind. if not found use 0. 
@@ -43,21 +47,13 @@ Description
 
 #include "fvCFD.H"
 #include "singlePhaseTransportModel.H"
-#include "radiationModel.H"
 #include "turbulentTransportModel.H"
 
-#include "fvIOoptionList.H"
 #include "pimpleControl.H"
 #include "interpolation.H"
-#include "Random.H"
-#include "meshSearch.H"
-
-#include <sstream>
-#include <fstream>
+#include "fvOptions.H"
 
 
-
-//#include "stdlib.h"
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -75,7 +71,7 @@ int main(int argc, char *argv[])
     #include "CourantNo.H"
     #include "setInitialDeltaT.H"
 
-    Info << " \n\nAtmospheric solver  :  0.4.1" << endl; 
+    Info << " \n\nAtmospheric solver  :  0.6.0" << endl; 
     Info << " -------------------------- " << endl; 
 
     const bool nonlinear = mesh.solutionDict().subDict("PIMPLE").lookupOrDefault("nonlinearSolver", true);
@@ -120,6 +116,19 @@ int main(int argc, char *argv[])
         }
 
 	runTime.write();
+	
+//	Info << (nonlinear ? fvc::ddt(U) + fvc::div(phi, U) : fvc::ddt(U))->weightedAverage(mesh.V())  << endl;
+//	Info << turbulence->divDevReff(U)->weightedAverage(mesh.V()) << " " << endl;
+/*	(nonlinear ? fvm::ddt(U) + fvm::div(phi, U) : fvm::ddt(U))
+	      + turbulence->divDevReff(U)
+	     ==
+		fvOptions(U)
+    );
+
+	  - fvc::grad(p_rgh)
+          + g*rhok_tag
+*/
+
 
 	Info<< "ExecutionTime = " << runTime.elapsedCpuTime() << " s"
 			<< "  ClockTime = " << runTime.elapsedClockTime() << " s"

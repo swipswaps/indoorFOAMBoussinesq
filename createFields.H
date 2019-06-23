@@ -58,13 +58,13 @@
     
     Info<< "Reading field UGeostrophic (if present, else set to 0)" << endl;
     volVectorField UGeostrophic(IOobject("UGeostrophic",
-											runTime.timeName(),
-											mesh,
-											IOobject::READ_IF_PRESENT,
-											IOobject::AUTO_WRITE), 
-								mesh,
-								dimensionedVector("geosvec", U.dimensions(), vector::zero) 						   
-								);
+					runTime.timeName(),
+					mesh,
+					IOobject::READ_IF_PRESENT,
+					IOobject::AUTO_WRITE), 
+				mesh,
+				dimensionedVector("geosvec", U.dimensions(), vector::zero) 						   
+				);
     
     
 
