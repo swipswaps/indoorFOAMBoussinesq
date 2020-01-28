@@ -2,3 +2,5 @@ lnInclude
 linux64GccDPOpt
 *.dep
 Make/linux64GccDPOpt/*
+Make/linux64GccDPInt32Opt
+Make/linux64GccDPInt64Opt
