@@ -15,6 +15,8 @@
       );
 
 
+    constrainPressure(p_rgh, U, phiHbyA, rAU);
+
     while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
@@ -24,7 +26,7 @@
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
 
-        p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+        p_rghEqn.solve();
 
         if (pimple.finalNonOrthogonalIter())
         {
