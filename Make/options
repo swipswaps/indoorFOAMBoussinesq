@@ -7,7 +7,7 @@ EXE_INC = \
     -I$(LIB_SRC)/TurbulenceModels/incompressible/lnInclude \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
-    -I$(LIB_SRC)radiation/lnInclude 
+    -I$(LIB_SRC)/radiation/lnInclude 
 
 
 EXE_LIBS = \
