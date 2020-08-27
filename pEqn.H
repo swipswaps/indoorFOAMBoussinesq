@@ -30,6 +30,8 @@
         (phiHbyA.boundaryField() - (mesh.Sf().boundaryField() & U.boundaryField()) + g_gradbyA.boundaryField())/(mesh.magSf().boundaryField()*rAUf.boundaryField())
     );
 
+    constrainPressure(p_rgh, U, phiHbyA, rAU);
+
     while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix p_rghEqn
@@ -39,7 +41,7 @@
 
         p_rghEqn.setReference(pRefCell, getRefCellValue(p_rgh, pRefCell));
 
-        p_rghEqn.solve(mesh.solver(p_rgh.select(pimple.finalInnerIter())));
+        p_rghEqn.solve();
 
         if (pimple.finalNonOrthogonalIter())
         {
@@ -66,7 +68,6 @@
     #include "continuityErrs.H"
 
     p = p_rgh;
-
 
     if (p_rgh.needReference() or forcepreference)
     {
